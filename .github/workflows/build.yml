@@ -12,7 +12,7 @@ jobs:
         with:
           python-version: 3.12
       - name: Install distutils
-        run: sudo apt-get install -y python-distutils
+        run: sudo apt-get install -y python3-distutils  # Correct package name
       - name: Build APK
         uses: digreatbrian/buildozer-action@v2
         with:
