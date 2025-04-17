@@ -1,3 +1,5 @@
+name: Build Android APK
+
 on:
   push:
     branches: [ main ]
@@ -8,24 +10,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
+      - name: Set up Python 3.8
         uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: 3.8  # Use 3.8 or 3.9 for better compatibility
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libncurses6 libtinfo6
+          sudo apt-get install -y build-essential python3-dev python3-pip git-core \
+              libssl-dev libffi-dev libsqlite3-dev libjpeg-dev libxml2-dev \
+              libxslt1-dev zlib1g-dev liblcms2-dev libblas-dev liblapack-dev \
+              gfortran libncurses6 libtinfo6
           sudo ln -sf /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5
+          pip install cython
+          pip install buildozer
 
       - name: Build APK
         uses: digreatbrian/buildozer-action@v2
         with:
-          python-version: 3.12 
+          python-version: 3.8
           buildozer-cmd: buildozer -v android debug
 
-      - name: Upload artifacts
+      - name: Show Buildozer log
+        run: tail -n 50 buildozer-android-*.log
+
+      - name: Upload APK as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: package
