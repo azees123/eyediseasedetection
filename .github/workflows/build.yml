@@ -11,7 +11,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
-      - name: Install libncurses6 (replacement for libtinfo5)
+      - name: Install libtinfo5 (replacement for libtinfo5)
         run: sudo apt-get install -y libncurses6 libtinfo5
       - name: Build APK
         uses: digreatbrian/buildozer-action@v2
