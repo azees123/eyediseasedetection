@@ -17,13 +17,28 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # Step 2: Set up Python
+    # Step 2: Set up Python 3.12
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.12
 
-    # Step 3: Install system dependencies
+    # Step 3: Cache Python dependencies to speed up future builds
+    - name: Cache Python dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-python-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-python-
+
+    # Step 4: Install dependencies
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  # Make sure requirements.txt is available and includes Kivy, TensorFlow, etc.
+
+    # Step 5: Install system dependencies for Android SDK and Buildozer
     - name: Install system dependencies
       run: |
         sudo apt update
@@ -40,7 +55,7 @@ jobs:
           curl \
           openjdk-11-jdk
 
-    # Step 4: Set up Android SDK
+    # Step 6: Set up Android SDK
     - name: Set up Android SDK
       run: |
         # Download and unzip SDK
@@ -56,13 +71,20 @@ jobs:
         sudo /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
         sudo /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0"
 
-    # Step 5: Install Buildozer
+    # Step 7: Install Buildozer
     - name: Install Buildozer
       run: |
         python -m pip install --upgrade pip
         pip install buildozer
 
-    # Step 6: Run Buildozer to build the app
+    # Step 8: Run Buildozer to build the app
     - name: Build app with Buildozer
       run: |
         buildozer android debug
+
+    # Optional: Upload the built APK as an artifact (if needed)
+    - name: Upload APK as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: eye_disease_detection_apk
+        path: bin/*.apk
