@@ -43,14 +43,18 @@ jobs:
     # Step 4: Set up Android SDK
     - name: Set up Android SDK
       run: |
-        sudo mkdir -p /opt/android-sdk/cmdline-tools/latest
-        cd /opt/android-sdk/cmdline-tools/latest
+        # Download and unzip SDK
         curl -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-        unzip sdk.zip
-        export ANDROID_SDK_ROOT=/opt/android-sdk
-        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/cmdline-tools/bin:$PATH
-        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/cmdline-tools/bin/sdkmanager --licenses
-        $ANDROID_SDK_ROOT/cmdline-tools/latest/cmdline-tools/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+        sudo mkdir -p /opt/android-sdk/cmdline-tools/latest
+        sudo unzip sdk.zip -d /opt/android-sdk/cmdline-tools/latest/
+
+        # Set the ANDROID_SDK_ROOT environment variable
+        echo "ANDROID_SDK_ROOT=/opt/android-sdk" | sudo tee -a /etc/environment
+        source /etc/environment
+
+        # Accept licenses and install necessary components
+        sudo /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+        sudo /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0"
 
     # Step 5: Install Buildozer
     - name: Install Buildozer
