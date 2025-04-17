@@ -12,7 +12,7 @@ jobs:
         with:
           python-version: 3.12
       - name: Install ncurses & tinfo
-        run: sudo apt-get update && sudo apt-get install -y libncurses6 libtinfo6
+        run: sudo apt-get update && sudo apt-get install -y libncurses6 libtinfo5
       - name: Build APK
         uses: digreatbrian/buildozer-action@v2
         with:
