@@ -1,40 +1,33 @@
-name: Build Android APK
-
 on:
   push:
     branches: [ main ]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # Use Ubuntu 24.04 as the environment
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11  # Using Python 3.11 for compatibility
+          python-version: 3.12
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential python3-dev python3-pip git-core \
-              libssl-dev libffi-dev libsqlite3-dev libjpeg-dev libxml2-dev \
-              libxslt1-dev zlib1g-dev liblcms2-dev libblas-dev liblapack-dev \
-              gfortran libncurses6  # Removed libtinfo6 reference
-          pip install cython
-          pip install buildozer
+          sudo apt-get install -y libncurses6 libtinfo6
+          # Create a symbolic link to ensure compatibility
+          sudo ln -sf /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5
 
       - name: Build APK
         uses: digreatbrian/buildozer-action@v2
         with:
-          python-version: 3.11
+          python-version: 3.12
           buildozer-cmd: buildozer -v android debug
 
-      - name: Show Buildozer log
-        run: tail -n 50 buildozer-android-*.log
-
-      - name: Upload APK as Artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: package
