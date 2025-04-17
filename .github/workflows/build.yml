@@ -13,7 +13,7 @@ jobs:
       - name: Set up Python 3.8
         uses: actions/setup-python@v5
         with:
-          python-version: 3.8  # Use 3.8 or 3.9 for better compatibility
+          python-version: 3.8  # Using Python 3.8 for compatibility
 
       - name: Install dependencies
         run: |
