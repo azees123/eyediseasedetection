@@ -17,9 +17,8 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
+          # Install necessary dependencies without the symbolic link to libtinfo5
           sudo apt-get install -y libncurses6 libtinfo6
-          # Create a symbolic link to ensure compatibility
-          sudo ln -sf /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5
 
       - name: Build APK
         uses: digreatbrian/buildozer-action@v2
