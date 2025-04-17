@@ -13,10 +13,11 @@ jobs:
         with:
           python-version: 3.12
 
-      - name: Install required system libraries
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libncurses6 libtinfo6
+          sudo ln -sf /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5
 
       - name: Build APK
         uses: digreatbrian/buildozer-action@v2
