@@ -25,9 +25,8 @@ jobs:
 
     # Step 3: Cache Python dependencies to speed up future builds
     - name: Cache Python dependencies
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
-        # Cache pip's dependencies
         path: ~/.cache/pip
         key: ${{ runner.os }}-python-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
@@ -37,7 +36,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt  # Make sure requirements.txt is available and includes Kivy, TensorFlow, etc.
+        pip install -r requirements.txt
 
     # Step 5: Install system dependencies for Android SDK and Buildozer
     - name: Install system dependencies
@@ -59,7 +58,6 @@ jobs:
     # Step 6: Set up Android SDK
     - name: Set up Android SDK
       run: |
-        # Download and unzip SDK
         curl -o sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
         sudo mkdir -p /opt/android-sdk/cmdline-tools/latest
         sudo unzip sdk.zip -d /opt/android-sdk/cmdline-tools/latest/
@@ -83,7 +81,7 @@ jobs:
       run: |
         buildozer android debug
 
-    # Optional: Upload the built APK as an artifact (if needed)
+    # Optional: Upload APK as artifact
     - name: Upload APK as artifact
       uses: actions/upload-artifact@v2
       with:
