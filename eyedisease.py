@@ -1,7 +1,7 @@
-import os
 import numpy as np
 from PIL import Image
-import tensorflow as tf
+import tensorflow.lite as tflite
+from kivy.resources import resource_find
 
 from kivy.app import App
 from kivy.uix.image import Image as KivyImage
@@ -10,10 +10,6 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from plyer import filechooser
-
-# === Load TensorFlow model ===
-model_path = 'eye_disease_model.h5'
-model = tf.keras.models.load_model(model_path)
 
 # Disease label mapping
 disease_classes = {
@@ -29,15 +25,27 @@ disease_classes = {
     9: 'Retinitis Pigmentosa'
 }
 
-# Prediction function
+# TensorFlow Lite model prediction
 def predict_image(image_path):
-    img = Image.open(image_path)
-    img = img.resize((64, 64))
-    img = img.convert('RGB')
-    img = np.array(img) / 255.0
+    # Load TFLite model
+    model_path = resource_find("eye_disease_model.tflite")
+    interpreter = tflite.Interpreter(model_path=model_path)
+    interpreter.allocate_tensors()
+
+    # Get input/output details
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+
+    # Prepare image
+    img = Image.open(image_path).resize((64, 64)).convert('RGB')
+    img = np.array(img, dtype=np.float32) / 255.0
     img = np.expand_dims(img, axis=0)
-    prediction = model.predict(img)
+
+    interpreter.set_tensor(input_details[0]['index'], img)
+    interpreter.invoke()
+    prediction = interpreter.get_tensor(output_details[0]['index'])
     predicted_class = np.argmax(prediction)
+
     return disease_classes.get(predicted_class, 'Unknown')
 
 
