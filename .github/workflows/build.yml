@@ -4,7 +4,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04  # Use Ubuntu 24.04 as the environment
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v4
@@ -14,20 +14,32 @@ jobs:
         with:
           python-version: 3.12
 
+      - name: Set up Android SDK environment variables
+        run: |
+          echo "ANDROID_HOME=/opt/android-sdk" >> $GITHUB_ENV
+          echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> $GITHUB_ENV
+
       - name: Install dependencies
         run: |
           sudo apt-get update
-          # Install necessary dependencies without the symbolic link to libtinfo5
-          sudo apt-get install -y libncurses6 libtinfo6
+          sudo apt-get install -y libncurses6 libtinfo6 python3-dev build-essential
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-cache-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-cache-
 
       - name: Build APK
         uses: digreatbrian/buildozer-action@v2
         with:
           python-version: 3.12
-          buildozer-cmd: buildozer -v android debug
+          buildozer-cmd: buildozer -v android debug release
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: package
+          name: apks
           path: ./bin/*.apk
